@@ -19,8 +19,8 @@ export default function TabLayout() {
       <Tabs.Screen name="stock" options={{ title: 'Stock', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📦</Text> }} />
       {isAdmin && <Tabs.Screen name="entradas" options={{ title: 'Entradas', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📥</Text> }} />}
       {isAdmin && <Tabs.Screen name="inserir_eventos" options={{ title: 'Eventos', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📅</Text> }} />}
-      {isAdmin && <Tabs.Screen name="gerir_eventos" options={{ title: 'Gerir', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>⚙️</Text> }} />}
-      {isAdmin && <Tabs.Screen name="transferencias" options={{ title: 'Transf.', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🚚</Text> }} />}
+      {isAdmin && <Tabs.Screen name="gerir_eventos" options={{ title: 'Gerir Eventos', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>⚙️</Text> }} />}
+      {isAdmin && <Tabs.Screen name="transferencias" options={{ title: 'Transferências', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🚚</Text> }} />}
       <Tabs.Screen name="relatorios" options={{ title: 'Relatórios', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📊</Text> }} />
       <Tabs.Screen name="definicoes" options={{ title: 'Definições', tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>⚙️</Text> }} />
     </Tabs>
