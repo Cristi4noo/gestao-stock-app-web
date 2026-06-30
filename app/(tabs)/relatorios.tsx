@@ -145,7 +145,21 @@ function RelatorioTransferencias() {
     setLoading(true);
     const inicio = dataInicio.toISOString().split('T')[0];
     const fim = dataFim.toISOString().split('T')[0];
-    let q = supabase.from('movimentos').select('quantidade, data_hora, produtos(produto), transferencias!inner(id_quinta_origem, quintas!inner(nome)), armazens!inner(nome, quintas!inner(nome))').eq('tipo_movimento', 'transferencia_saida').gte('data_hora', inicio).lte('data_hora', fim + 'T23:59:59').order('data_hora', { ascending: false }).limit(50);
+    let q = supabase
+      .from('movimentos')
+      .select(`
+        quantidade,
+        data_hora,
+        produtos(produto),
+        transferencias(
+        quintas_origem:id_quinta_origem(nome),
+        quintas_destino:id_quinta_destino(nome))
+      `)
+      .eq('tipo_movimento', 'transferencia_saida')
+      .gte('data_hora', inicio)
+      .lte('data_hora', fim + 'T23:59:59')
+      .order('data_hora', { ascending: false })
+      .limit(50);
     if (filtroQuintaOrigem) q = q.eq('transferencias.id_quinta_origem', parseInt(filtroQuintaOrigem));
     q.then(({ data }) => { setTransferencias(data || []); setLoading(false); });
   }, [dataInicio, dataFim, filtroQuintaOrigem]);
@@ -162,7 +176,9 @@ function RelatorioTransferencias() {
       {transferencias.map((t, i) => (
         <View key={i} style={styles.card}>
           <Text style={styles.nome}>{t.produtos?.produto}: {Math.abs(t.quantidade)} un.</Text>
-          <Text>{t.armazens?.quintas?.nome} → {t.transferencias?.quintas?.nome} | {new Date(t.data_hora).toLocaleDateString()}</Text>
+          <Text>
+            {t.transferencias?.quintas_origem?.nome} → {t.transferencias?.quintas_destino?.nome} | {new Date(t.data_hora).toLocaleDateString()}
+          </Text>
         </View>
       ))}
     </ScrollView>
