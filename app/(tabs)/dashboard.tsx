@@ -46,13 +46,22 @@ export default function Dashboard() {
   }
 
   async function carregarTransferencias() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('movimentos')
-      .select('quantidade, data_hora, produtos(produto), armazens!inner(nome, quintas!inner(nome)), transferencias!inner(id_quinta_origem, quintas!inner(nome))')
+      .select(`
+        quantidade,
+        produtos(produto),
+        transferencias(
+          quintas_origem:id_quinta_origem(nome),
+          quintas_destino:id_quinta_destino(nome)
+        )
+      `)
       .eq('tipo_movimento', 'transferencia_saida')
       .order('data_hora', { ascending: false })
       .limit(5);
-      
+
+    if (error) console.log(error);
+
     setTransferencias(data || []);
   }
 
@@ -116,7 +125,9 @@ export default function Dashboard() {
         {transferencias.length === 0 ? <Text style={styles.empty}>Sem transferências</Text> :
           transferencias.map((t, i) => (
             <Text key={i} style={styles.row}>
-              • {t.produtos?.produto}: {Math.abs(t.quantidade)} un. | {t.armazens?.quintas?.nome} → {t.transferencias?.quintas?.nome}
+              • {t.produtos?.produto}: {Math.abs(t.quantidade)} un. |
+                {t.transferencias?.quintas_origem?.nome} →
+                {t.transferencias?.quintas_destino?.nome}
             </Text>
           ))
         }
