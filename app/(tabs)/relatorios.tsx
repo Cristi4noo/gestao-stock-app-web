@@ -153,10 +153,17 @@ function RelatorioEntradas() {
   const [filtroQuinta, setFiltroQuinta] = useState('');
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const [quintas, setQuintas] = useState([]);
+  const [categorias, setCategorias] = useState<string[]>([]);
   const [showInicio, setShowInicio] = useState(false);
   const [showFim, setShowFim] = useState(false);
 
-  useEffect(() => { supabase.from('quintas').select('*').order('nome').then(({ data }) => setQuintas(data || [])); }, []);
+  useEffect(() => {
+    supabase.from('quintas').select('*').order('nome').then(({ data }) => setQuintas(data || []));
+    supabase.from('produtos').select('categoria').order('categoria').then(({ data }) => {
+      const unicas = [...new Set((data || []).map(p => p.categoria).filter(Boolean))];
+      setCategorias(unicas);
+    });
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -190,10 +197,7 @@ function RelatorioEntradas() {
       <View style={styles.pickerContainer}>
         <Picker selectedValue={filtroCategoria} onValueChange={setFiltroCategoria}>
           <Picker.Item label="Categoria" value="" />
-          <Picker.Item label="Refrigerantes" value="Refrigerantes" />
-          <Picker.Item label="Águas" value="Águas" />
-          <Picker.Item label="Cervejas" value="Cervejas" />
-          <Picker.Item label="Vinhos" value="Vinhos" />
+          {categorias.map(cat => <Picker.Item key={cat} label={cat} value={cat} />)}
         </Picker>
       </View>
 
