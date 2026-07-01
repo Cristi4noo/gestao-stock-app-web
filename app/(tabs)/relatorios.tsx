@@ -1,4 +1,3 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -141,17 +140,34 @@ function ConsumoEvento({ idEvento }) {
 }
 
 /* =================================================================== */
-/*  COMPONENTE REUTILIZÁVEL: SELETOR DE DATA                           */
+/*  COMPONENTE DE DATA (WEB + NATIVO)                                  */
 /* =================================================================== */
 function DateField({ label, date, onDateChange }: { label: string; date: Date; onDateChange: (d: Date) => void }) {
-  const [show, setShow] = useState(false);
+  const format = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-  const format = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
+  if (Platform.OS === 'web') {
+    return (
+      <View style={{ marginBottom: 8 }}>
+        <Text style={styles.label}>{label}</Text>
+        <input
+          type="date"
+          value={format(date)}
+          onChange={(e) => onDateChange(new Date(e.target.value))}
+          style={{ width: '100%', padding: 12, borderRadius: 10, border: '1px solid #ddd', fontSize: 14, backgroundColor: '#fff' }}
+        />
+      </View>
+    );
+  }
+
+  // Nativo (usa DateTimePicker do inserir_eventos)
+  return <DateFieldNative label={label} date={date} onDateChange={onDateChange} />;
+}
+
+function DateFieldNative({ label, date, onDateChange }: { label: string; date: Date; onDateChange: (d: Date) => void }) {
+  const [show, setShow] = useState(false);
+  const DateTimePicker = require('@react-native-community/datetimepicker').default;
+
+  const format = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
   return (
     <View>
@@ -163,10 +179,9 @@ function DateField({ label, date, onDateChange }: { label: string; date: Date; o
           value={date}
           mode="date"
           display={Platform.OS === 'ios' ? 'inline' : 'default'}
-          onChange={(e, d) => {
+          onChange={(e: any, d?: Date) => {
             if (Platform.OS === 'android') setShow(false);
             if (d) onDateChange(d);
-            if (Platform.OS === 'ios') setShow(false);
           }}
         />
       )}
@@ -308,6 +323,7 @@ const styles = StyleSheet.create({
   nome: { fontSize: 16, fontWeight: 'bold', color: cores.texto },
   row: { fontSize: 14, marginVertical: 2 },
   input: { backgroundColor: cores.branco, padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 8, fontSize: 14 },
+  label: { fontSize: 14, fontWeight: '600', color: cores.texto, marginBottom: 4 },
   pickerContainer: { backgroundColor: cores.branco, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 8, flex: 1 },
   pickerRow: { flexDirection: 'row', gap: 10 },
   empty: { fontSize: 14, color: cores.textoClaro, fontStyle: 'italic', padding: 10 },
