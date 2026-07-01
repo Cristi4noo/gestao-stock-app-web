@@ -1,6 +1,7 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../../src/supabase';
 import { cores } from '../../src/tema';
 
@@ -140,6 +141,40 @@ function ConsumoEvento({ idEvento }) {
 }
 
 /* =================================================================== */
+/*  COMPONENTE REUTILIZÁVEL: SELETOR DE DATA                           */
+/* =================================================================== */
+function DateField({ label, date, onDateChange }: { label: string; date: Date; onDateChange: (d: Date) => void }) {
+  const [show, setShow] = useState(false);
+
+  const format = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  return (
+    <View>
+      <TouchableOpacity style={styles.input} onPress={() => setShow(true)}>
+        <Text>{label}: {format(date)}</Text>
+      </TouchableOpacity>
+      {show && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+          onChange={(e, d) => {
+            if (Platform.OS === 'android') setShow(false);
+            if (d) onDateChange(d);
+            if (Platform.OS === 'ios') setShow(false);
+          }}
+        />
+      )}
+    </View>
+  );
+}
+
+/* =================================================================== */
 /*  ENTRADAS                                                            */
 /* =================================================================== */
 function RelatorioEntradas() {
@@ -178,8 +213,8 @@ function RelatorioEntradas() {
     <ScrollView>
       <Text style={styles.sectionTitle}>📦 Entradas</Text>
 
-      <TextInput style={styles.input} placeholder="Data início (AAAA-MM-DD)" value={dataInicio.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataInicio(d); }} />
-      <TextInput style={styles.input} placeholder="Data fim (AAAA-MM-DD)" value={dataFim.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataFim(d); }} />
+      <DateField label="📅 Início" date={dataInicio} onDateChange={setDataInicio} />
+      <DateField label="📅 Fim" date={dataFim} onDateChange={setDataFim} />
 
       <View style={styles.pickerContainer}>
         <Picker selectedValue={filtroQuinta} onValueChange={setFiltroQuinta}>
@@ -236,8 +271,8 @@ function RelatorioTransferencias() {
     <ScrollView>
       <Text style={styles.sectionTitle}>🚚 Transferências</Text>
 
-      <TextInput style={styles.input} placeholder="Data início (AAAA-MM-DD)" value={dataInicio.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataInicio(d); }} />
-      <TextInput style={styles.input} placeholder="Data fim (AAAA-MM-DD)" value={dataFim.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataFim(d); }} />
+      <DateField label="📅 Início" date={dataInicio} onDateChange={setDataInicio} />
+      <DateField label="📅 Fim" date={dataFim} onDateChange={setDataFim} />
 
       <View style={styles.pickerRow}>
         <View style={styles.pickerContainer}>
