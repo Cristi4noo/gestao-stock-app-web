@@ -1,7 +1,6 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../../src/supabase';
 import { cores } from '../../src/tema';
 
@@ -79,7 +78,6 @@ function RelatorioEventos() {
     <ScrollView>
       <Text style={styles.sectionTitle}>📅 Eventos</Text>
 
-      {/* Filtros */}
       <View style={styles.pickerRow}>
         <View style={styles.pickerContainer}>
           <Picker selectedValue={filtroEstado} onValueChange={setFiltroEstado}>
@@ -104,7 +102,6 @@ function RelatorioEventos() {
         </Picker>
       </View>
 
-      {/* Lista */}
       {eventos.map(e => (
         <View key={e.id_evento} style={styles.card}>
           <Text style={styles.nome}>{e.nome} ({e.data})</Text>
@@ -154,8 +151,6 @@ function RelatorioEntradas() {
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const [quintas, setQuintas] = useState([]);
   const [categorias, setCategorias] = useState<string[]>([]);
-  const [showInicio, setShowInicio] = useState(false);
-  const [showFim, setShowFim] = useState(false);
 
   useEffect(() => {
     supabase.from('quintas').select('*').order('nome').then(({ data }) => setQuintas(data || []));
@@ -183,10 +178,8 @@ function RelatorioEntradas() {
     <ScrollView>
       <Text style={styles.sectionTitle}>📦 Entradas</Text>
 
-      <TouchableOpacity style={styles.input} onPress={() => setShowInicio(true)}><Text>📅 Início: {dataInicio.toISOString().split('T')[0]}</Text></TouchableOpacity>
-      {showInicio && <DateTimePicker value={dataInicio} mode="date" display="default" onChange={(e, d) => { setShowInicio(false); if (d) setDataInicio(d); }} />}
-      <TouchableOpacity style={styles.input} onPress={() => setShowFim(true)}><Text>📅 Fim: {dataFim.toISOString().split('T')[0]}</Text></TouchableOpacity>
-      {showFim && <DateTimePicker value={dataFim} mode="date" display="default" onChange={(e, d) => { setShowFim(false); if (d) setDataFim(d); }} />}
+      <TextInput style={styles.input} placeholder="Data início (AAAA-MM-DD)" value={dataInicio.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataInicio(d); }} />
+      <TextInput style={styles.input} placeholder="Data fim (AAAA-MM-DD)" value={dataFim.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataFim(d); }} />
 
       <View style={styles.pickerContainer}>
         <Picker selectedValue={filtroQuinta} onValueChange={setFiltroQuinta}>
@@ -222,8 +215,6 @@ function RelatorioTransferencias() {
   const [filtroQuintaOrigem, setFiltroQuintaOrigem] = useState('');
   const [filtroQuintaDestino, setFiltroQuintaDestino] = useState('');
   const [quintas, setQuintas] = useState([]);
-  const [showInicio, setShowInicio] = useState(false);
-  const [showFim, setShowFim] = useState(false);
 
   useEffect(() => { supabase.from('quintas').select('*').order('nome').then(({ data }) => setQuintas(data || [])); }, []);
 
@@ -245,10 +236,8 @@ function RelatorioTransferencias() {
     <ScrollView>
       <Text style={styles.sectionTitle}>🚚 Transferências</Text>
 
-      <TouchableOpacity style={styles.input} onPress={() => setShowInicio(true)}><Text>📅 Início: {dataInicio.toISOString().split('T')[0]}</Text></TouchableOpacity>
-      {showInicio && <DateTimePicker value={dataInicio} mode="date" display="default" onChange={(e, d) => { setShowInicio(false); if (d) setDataInicio(d); }} />}
-      <TouchableOpacity style={styles.input} onPress={() => setShowFim(true)}><Text>📅 Fim: {dataFim.toISOString().split('T')[0]}</Text></TouchableOpacity>
-      {showFim && <DateTimePicker value={dataFim} mode="date" display="default" onChange={(e, d) => { setShowFim(false); if (d) setDataFim(d); }} />}
+      <TextInput style={styles.input} placeholder="Data início (AAAA-MM-DD)" value={dataInicio.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataInicio(d); }} />
+      <TextInput style={styles.input} placeholder="Data fim (AAAA-MM-DD)" value={dataFim.toISOString().split('T')[0]} onChangeText={(txt) => { const d = new Date(txt); if (!isNaN(d.getTime())) setDataFim(d); }} />
 
       <View style={styles.pickerRow}>
         <View style={styles.pickerContainer}>
@@ -283,7 +272,7 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 18, fontWeight: 'bold', color: cores.primario },
   nome: { fontSize: 16, fontWeight: 'bold', color: cores.texto },
   row: { fontSize: 14, marginVertical: 2 },
-  input: { backgroundColor: cores.branco, padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 8 },
+  input: { backgroundColor: cores.branco, padding: 12, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 8, fontSize: 14 },
   pickerContainer: { backgroundColor: cores.branco, borderRadius: 10, borderWidth: 1, borderColor: '#ddd', marginBottom: 8, flex: 1 },
   pickerRow: { flexDirection: 'row', gap: 10 },
   empty: { fontSize: 14, color: cores.textoClaro, fontStyle: 'italic', padding: 10 },
