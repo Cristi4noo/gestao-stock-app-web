@@ -174,16 +174,35 @@ export default function InserirEventos() {
       </View>
       <Text style={styles.label}>Local</Text>
       <TextInput style={styles.input} value={localEvento} onChangeText={setLocalEvento} />
+
+      {/* DATA - FUNCIONA NA WEB E NO TELEMÓVEL */}
       <Text style={styles.label}>Data</Text>
-      <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}><Text>📅 {formatarData(dataEvento)}</Text></TouchableOpacity>
-      {showDatePicker && (
-        <View style={{ backgroundColor: '#fff', borderRadius: 10, padding: 10, marginBottom: 8 }}>
-          <DateTimePicker value={dataEvento} mode="date" display="inline" onChange={onDateChange} />
-          <TouchableOpacity style={{ backgroundColor: cores.primario, padding: 10, borderRadius: 8, alignItems: 'center' }} onPress={() => setShowDatePicker(false)}>
-            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Confirmar Data</Text>
+      {Platform.OS === 'web' ? (
+        <input
+          type="date"
+          value={formatarData(dataEvento)}
+          onChange={(e) => setDataEvento(new Date(e.target.value))}
+          style={{
+            width: '100%', padding: 12, borderRadius: 10, border: '1px solid #ddd',
+            fontSize: 14, backgroundColor: '#fff', marginBottom: 8,
+          }}
+        />
+      ) : (
+        <>
+          <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
+            <Text>📅 {formatarData(dataEvento)}</Text>
           </TouchableOpacity>
-        </View>
+          {showDatePicker && (
+            <View style={{ backgroundColor: '#fff', borderRadius: 10, padding: 10, marginBottom: 8 }}>
+              <DateTimePicker value={dataEvento} mode="date" display="inline" onChange={onDateChange} />
+              <TouchableOpacity style={{ backgroundColor: cores.primario, padding: 10, borderRadius: 8, alignItems: 'center' }} onPress={() => setShowDatePicker(false)}>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Confirmar Data</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </>
       )}
+
       <Text style={styles.label}>Nº de Pessoas</Text>
       <TextInput style={styles.input} value={numPessoas} onChangeText={setNumPessoas} keyboardType="numeric" />
 
