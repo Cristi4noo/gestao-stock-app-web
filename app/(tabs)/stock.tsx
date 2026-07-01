@@ -15,7 +15,7 @@ export default function Stock() {
   const [filtroCategoria, setFiltroCategoria] = useState('');
   const [categorias, setCategorias] = useState<string[]>([]);
   const [ordenar, setOrdenar] = useState('quantidade');
-  const [seccao, setSeccao] = useState('total'); // 'total' | 'armazem'
+  const [seccao, setSeccao] = useState('total');
 
   useEffect(() => {
     supabase.from('quintas').select('*').order('nome').then(({ data }) => setQuintas(data || []));
@@ -54,7 +54,6 @@ export default function Stock() {
       ? await supabase.from('produtos').select('*').in('id_produto', ids)
       : { data: [] };
 
-    // extrair categorias únicas
     const unicas = [...new Set((prod || []).map(p => p.categoria).filter(Boolean))] as string[];
     setCategorias(unicas);
 
@@ -86,6 +85,7 @@ export default function Stock() {
       return matchNome && matchCat;
     });
     if (ordenar === 'quantidade') f.sort((a, b) => (b.stock_total || b.quantidade) - (a.stock_total || a.quantidade));
+    if (ordenar === 'nome') f.sort((a, b) => a.produto.localeCompare(b.produto));
     return f;
   }
 
@@ -114,7 +114,6 @@ export default function Stock() {
         </Picker>
       </View>
 
-      {/* Filtros */}
       <TextInput style={styles.input} placeholder="🔍 Pesquisar produto..." value={pesquisa} onChangeText={setPesquisa} />
       <View style={styles.pickerContainer}>
         <Picker selectedValue={filtroCategoria} onValueChange={setFiltroCategoria}>
@@ -125,21 +124,15 @@ export default function Stock() {
       <View style={styles.pickerContainer}>
         <Picker selectedValue={ordenar} onValueChange={setOrdenar}>
           <Picker.Item label="Ordenar por quantidade" value="quantidade" />
+          <Picker.Item label="Ordenar por nome" value="nome" />
         </Picker>
       </View>
 
-      {/* Separador igual aos relatórios */}
       <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-        <TouchableOpacity
-          style={[styles.tab, seccao === 'total' && styles.tabAtivo]}
-          onPress={() => setSeccao('total')}
-        >
+        <TouchableOpacity style={[styles.tab, seccao === 'total' && styles.tabAtivo]} onPress={() => setSeccao('total')}>
           <Text style={[styles.tabText, seccao === 'total' && styles.tabTextAtivo]}>📋 Stock Total</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, seccao === 'armazem' && styles.tabAtivo]}
-          onPress={() => setSeccao('armazem')}
-        >
+        <TouchableOpacity style={[styles.tab, seccao === 'armazem' && styles.tabAtivo]} onPress={() => setSeccao('armazem')}>
           <Text style={[styles.tabText, seccao === 'armazem' && styles.tabTextAtivo]}>🏭 Por Armazém</Text>
         </TouchableOpacity>
       </View>
@@ -150,7 +143,7 @@ export default function Stock() {
             filtrar(produtos).map(p => (
               <View key={p.id_produto} style={styles.card}>
                 <Text style={styles.nome}>{p.produto}</Text>
-                <Text>{p.categoria} | {p.tipo_embalagem} | {p.unidades_embalagem} un/emb</Text>
+                <Text>{p.categoria} | {p.capacidade_litros ? p.capacidade_litros + ' L' : '-'} | {p.tipo_embalagem}</Text>
                 <Text style={styles.qtd}>Stock: {p.stock_total} un.</Text>
               </View>
             ))
@@ -167,7 +160,7 @@ export default function Stock() {
                 filtrar(stockArmazem[a.id_armazem] || []).map(p => (
                   <View key={p.id_produto} style={styles.card}>
                     <Text style={styles.nome}>{p.produto}</Text>
-                    <Text>{p.categoria} | {p.tipo_embalagem}</Text>
+                    <Text>{p.categoria} | {p.capacidade_litros ? p.capacidade_litros + ' L' : '-'} | {p.tipo_embalagem}</Text>
                     <Text style={styles.qtd}>Stock: {p.quantidade} un.</Text>
                   </View>
                 ))
