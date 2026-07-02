@@ -16,27 +16,28 @@ export default function LoginScreen() {
       return;
     }
     setLoading(true);
-  
-    const { data, error } = await supabase
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setLoading(false);
+      Alert.alert('Erro', 'Email ou password incorretos!');
+      return;
+    }
+
+    // Buscar papel na tabela utilizadores
+    const { data: userData } = await supabase
       .from('utilizadores')
-      .select('*')
-      .eq('nome', email)
+      .select('nome, papel')
+      .eq('auth_id', data.user.id)
       .single();
-  
+
     setLoading(false);
-  
-    if (error || !data) {
-      Alert.alert('Erro', 'Utilizador não encontrado!');
-      return;
-    }
-  
-    if (password !== '1234') {
-      Alert.alert('Erro', 'Password incorreta!');
-      return;
-    }
-  
+
     (globalThis as any).sessaoAtiva = true;
-    (globalThis as any).papel = data.papel;
+    (globalThis as any).papel = userData?.papel || 'visualizador';
+    (globalThis as any).nome = userData?.nome || email;
+
     router.replace('/(tabs)/dashboard');
   }
 
@@ -45,10 +46,11 @@ export default function LoginScreen() {
       <Text style={styles.title}>🍾 Stock Bebidas</Text>
       <TextInput
         style={styles.input}
-        placeholder="Utilizador"
+        placeholder="Email"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
@@ -66,10 +68,8 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 30, backgroundColor: cores.fundo },
-  logo: { fontSize: 40, textAlign: 'center', marginBottom: 10 },
-  title: { fontSize: 26, fontWeight: 'bold', textAlign: 'center', color: cores.secundario, marginBottom: 5 },
-  subtitle: { fontSize: 14, textAlign: 'center', color: cores.textoClaro, marginBottom: 40 },
+  title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', color: cores.primario, marginBottom: 40 },
   input: { backgroundColor: cores.branco, borderWidth: 1, borderColor: '#ddd', borderRadius: 10, padding: 14, marginBottom: 12, fontSize: 16 },
-  button: { backgroundColor: cores.secundario, padding: 16, borderRadius: 10, marginTop: 10 },
+  button: { backgroundColor: cores.primario, padding: 16, borderRadius: 10 },
   buttonText: { color: '#fff', textAlign: 'center', fontWeight: 'bold', fontSize: 16 },
 });
